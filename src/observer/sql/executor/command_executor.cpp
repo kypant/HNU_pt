@@ -31,6 +31,12 @@ RC CommandExecutor::execute(SQLStageEvent *sql_event)
   Stmt *stmt = sql_event->stmt();
 
   switch (stmt->type()) {
+    
+    case StmtType::DROP_TABLE: {
+      DropTableExecutor executor;
+      return executor.execute(sql_event);
+    } break;
+
     case StmtType::CREATE_INDEX: {
       CreateIndexExecutor executor;
       return executor.execute(sql_event);

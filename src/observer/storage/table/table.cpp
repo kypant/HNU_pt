@@ -15,6 +15,7 @@ See the Mulan PSL v2 for more details. */
 #include <algorithm>
 #include <limits.h>
 #include <string.h>
+#include <cstdio>
 
 #include "common/defs.h"
 #include "common/lang/string.h"
@@ -119,6 +120,52 @@ RC Table::create(int32_t table_id, const char *path, const char *name, const cha
 
   base_dir_ = base_dir;
   LOG_INFO("Successfully create table %s:%s", base_dir, name);
+  return rc;
+}
+
+RC Table::drop(const char* base_dir, const char* table_name) {
+  RC rc = RC::SUCCESS;
+  if (common::is_blank(table_name)) {
+    LOG_WARN("Name cannot be empty");
+    return RC::INVALID_ARGUMENT;
+  }
+  LOG_INFO("Begin to drop table %s:%s", base_dir, table_name);
+
+  // 刷脏页
+  rc = sync();
+  if (rc != RC::SUCCESS) {
+    return rc;
+  }
+
+  // 删除.table的元数据
+  std::string table_meta_path = table_meta_file(base_dir, table_name);
+  if (std::remove(table_meta_path.c_str()) != 0) {
+    LOG_ERROR("Failed to delete table meta of %s:%s", base_dir, table_name);
+    return RC::FILE_NOT_EXIST;
+  }
+
+  // 删除.data的表数据
+  std::string table_data_path = table_data_file(base_dir, table_name);
+  if (std::remove(table_data_path.c_str()) != 0) {
+    LOG_ERROR("Failed to delete table data of %s:%s", base_dir, table_name);
+    return RC::FILE_NOT_EXIST;
+  }
+
+  // 删除磁盘以及内存中的索引
+  int idx_nums = table_meta_.index_num();
+  for (int i = 0; i < idx_nums; ++i) {
+    Index* base_index = indexes_[i];
+    BplusTreeIndex* bpt_index = dynamic_cast<BplusTreeIndex *>(base_index);
+    bpt_index->close();
+
+    const IndexMeta* index_meta = table_meta_.index(i);
+    std::string table_index_path = table_index_file(base_dir, table_name, index_meta->name());
+    if (std::remove(table_index_path.c_str()) != 0) {
+      LOG_ERROR("Failed to delete table index of %s:%s", base_dir, index_meta->name());
+      return RC::FILE_NOT_EXIST;
+    }
+  }
+
   return rc;
 }
 
