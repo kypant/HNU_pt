@@ -13,7 +13,6 @@ See the Mulan PSL v2 for more details. */
 //
 
 #include "storage/db/db.h"
-
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <vector>
@@ -26,6 +25,7 @@ See the Mulan PSL v2 for more details. */
 #include "storage/table/table.h"
 #include "storage/table/table_meta.h"
 #include "storage/trx/trx.h"
+
 
 Db::~Db()
 {
@@ -100,7 +100,6 @@ RC Db::create_table(const char *table_name, int attribute_count, const AttrInfoS
   LOG_INFO("Create table success. table name=%s, table_id:%d", table_name, table_id);
   return RC::SUCCESS;
 }
-
 RC Db::drop_table(const char* table_name) {
   RC rc = RC::SUCCESS;
   // table should exists

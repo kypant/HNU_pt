@@ -48,8 +48,7 @@ public:
    * @param attributes 字段
    */
   RC create(int32_t table_id, const char *path, const char *name, const char *base_dir, int attribute_count,
-      const AttrInfoSqlNode attributes[]);
-      
+      const AttrInfoSqlNode attributes[]);      
   RC drop(const char* base_dir, const char* table_name);
   /**
    * 打开一个表

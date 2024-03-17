@@ -15,7 +15,8 @@ See the Mulan PSL v2 for more details. */
 #include <algorithm>
 #include <limits.h>
 #include <string.h>
-#include <cstdio>
+
+#include <cstdio>//
 
 #include "common/defs.h"
 #include "common/lang/string.h"
@@ -122,14 +123,13 @@ RC Table::create(int32_t table_id, const char *path, const char *name, const cha
   LOG_INFO("Successfully create table %s:%s", base_dir, name);
   return rc;
 }
-
 RC Table::drop(const char* base_dir, const char* table_name) {
   RC rc = RC::SUCCESS;
   if (common::is_blank(table_name)) {
     LOG_WARN("Name cannot be empty");
     return RC::INVALID_ARGUMENT;
   }
-  LOG_INFO("Begin to drop table %s:%s", base_dir, table_name);
+  LOG_INFO("Begin to drop table %s:%s", base_dir, table_name);////
 
   // 刷脏页
   rc = sync();
